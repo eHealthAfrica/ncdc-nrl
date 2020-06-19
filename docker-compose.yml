@@ -1,0 +1,166 @@
+version: '2.1'
+
+networks:
+  ncdc_nrl:
+    external:
+      name: ncdc_nrl_net
+
+volumes:
+  database_data:
+    external:
+      name: ncdc_nrl_ckan_data
+
+services:
+  # WARNING: last update was 2 years ago!!! (Today: 2020-05-05)
+  # https://hub.docker.com/r/ckan/postgresql
+  db-ckan:
+    image: ckan/postgresql:latest
+    environment:
+      - DS_RO_PASS=ee247304bc0537d06705a493bc0331a5
+      - POSTGRES_PASSWORD=${CKAN_DB_PASSWORD}
+    volumes:
+      - database_data:/var/lib/postgresql/data
+    networks:
+      - ncdc_nrl
+
+  # WARNING: last update was 2 years ago!!! (Today: 2020-05-05)
+  # https://hub.docker.com/r/ckan/solr
+  solr-ckan:
+    image: ckan/solr:latest
+    volumes:
+      - ./solr/schema.xml:/opt/solr/server/solr/ckan/conf/schema.xml
+      - ./solr/solrconfig.xml:/opt/solr/server/solr/ckan/conf/solrconfig.xml
+    networks:
+      - ncdc_nrl
+
+  # WARNING: uses python 2 and last update was 5 years ago!!! (Today: 2020-05-05)
+  datapusher:
+    image: clementmouchet/datapusher
+    networks:
+      - ncdc_nrl
+
+  redis:
+    image: redis:alpine
+    command: >
+      redis-server
+      --requirepass ${REDIS_PASSWORD}
+      --appendonly yes
+      --auto-aof-rewrite-percentage 100
+      --auto-aof-rewrite-min-size 64mb
+    networks:
+      - ncdc_nrl
+
+  ckan:
+    image: ehealthafrica/ckan:2.8.3
+    environment:
+      # Defaults work with linked containers, change to use own Postgres, SolR, Redis or Datapusher
+      - CKAN_INI=/etc/ckan/production.ini
+      - CKAN_MAX_UPLOAD_SIZE_MB=20000
+      - CKAN_PORT=5000
+      - CKAN_SITE_URL=http://localhost:5000
+
+      - CKAN_DATAPUSHER_URL=http://datapusher:8800
+      - CKAN_DATASTORE_READ_URL=postgresql://datastore_ro:${DATASTORE_READONLY_PASSWORD}@db-ckan/datastore
+      - CKAN_DATASTORE_WRITE_URL=postgresql://ckan:${CKAN_DB_PASSWORD}@db-ckan/datastore
+      - CKAN_REDIS_URL=redis://user:{REDIS_PASSWORD}@redis:6379/0
+      - CKAN_SOLR_URL=http://solr-ckan:8983/solr/ckan
+      - CKAN_SQLALCHEMY_URL=postgresql://ckan:${CKAN_DB_PASSWORD}@db-ckan/ckan
+      - DS_RO_PASS=${DATASTORE_READONLY_PASSWORD}
+
+      - CKAN_SYSADMIN_NAME=${CKAN_SYSADMIN_NAME}
+      - CKAN_SYSADMIN_PASSWORD=${CKAN_SYSADMIN_PASSWORD}
+      - CKAN_SYSADMIN_EMAIL=${CKAN_SYSADMIN_EMAIL}
+    volumes:
+      - ./ckan:/etc/ckan
+    depends_on:
+      - db-ckan
+      - solr-ckan
+      - redis
+      - datapusher
+    ports:
+      - 5000:5000
+    networks:
+      - ncdc_nrl
+
+  tester:
+    extends:
+      file: zeebe_tester/build.yml
+      service: zeebe_tester
+    command: start
+    # If you want to hook this up to a non local consumer & Zeebe Broker for CI/ etc
+    # environment:
+    #   CONSUMER_URL: http://something
+    #   CONSUMER_USER: username
+    #   CONSUMER_PASSWORD: password
+    #   ZEEBE_ADDRESS: ${ZEEBE_ADDRESS}
+    #   ZEEBE_AUDIENCE: ${ZEEBE_AUDIENCE}
+    #   ZEEBE_CLIENT_ID: ${ZEEBE_CLIENT_ID}
+    #   ZEEBE_CLIENT_SECRET: ${ZEEBE_CLIENT_SECRET}
+    #   ZEEBE_AUTHORIZATION_SERVER_URL: ${ZEEBE_AUTHORIZATION_SERVER_URL}
+    volumes:
+      - ./zeebe_tester/assets:/code/assets
+    depends_on:
+      - zeebe
+      - consumer
+    networks:
+      - ncdc_nrl
+
+  consumer:
+    image: ehealthafrica/aether-stream-consumer:0.2.0
+    environment:
+      # consumer settings
+      - CONSUMER_NAME='STREAM'
+
+      # redis
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - REDIS_DB=0
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      # kafka settings
+      - KAFKA_CONFIG_PATH=/code/conf/consumer/kafka.json
+      - KAFKA_URL=${KAFKA_URL}
+      - SECURITY.PROTOCOL=SASL_SSL
+      - SASL.MECHANISM=PLAIN
+      - SASL.USERNAME=${KAFKA_SASL_USERNAME}
+      - SASL.PASSWORD=${KAFKA_SASL_PASSWORD}
+      - EXPOSE_PORT=9013
+    depends_on:
+      - zeebe
+      - redis
+    command: start
+    ports:
+      - 9013:9013
+    networks:
+      - ncdc_nrl
+
+  zeebe:
+    container_name: zeebe_broker
+    image: camunda/zeebe:0.23.0
+    environment:
+      - ZEEBE_LOG_LEVEL=debug
+    ports:
+      - "26500:26500"
+      - "9600:9600"
+      - "5701:5701"
+    volumes:
+      - ./zeebe_tester/lib/zeebe-hazelcast-exporter-0.8.0-jar-with-dependencies.jar:/usr/local/zeebe/exporters/zeebe-hazelcast-exporter.jar
+      - ./zeebe_tester/conf/application.yaml:/usr/local/zeebe/config/application.yaml
+    networks:
+      - ncdc_nrl
+
+  monitor:
+    container_name: zeebe-simple-monitor
+    image: camunda/zeebe-simple-monitor:0.18.0
+    volumes:
+      #  Fixes an issue with the max size of a message
+      #  should be fixed in 0.19
+      - ./zeebe_tester/lib/MessageEntity.class:/app/classes/io/zeebe/monitor/entity/MessageEntity.class
+    environment:
+      - zeebe.client.broker.contactPoint=zeebe:26500
+      - zeebe.worker.hazelcast.connection=zeebe:5701
+    ports:
+      - "8082:8082"
+    depends_on:
+      - zeebe
+    networks:
+      - ncdc_nrl

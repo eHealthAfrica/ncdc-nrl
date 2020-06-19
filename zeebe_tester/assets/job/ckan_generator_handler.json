@@ -1,0 +1,5 @@
+{
+    "id": "ckan_generator_handler",
+    "name": "Default Stream Consumer Job for CKAN",
+    "pipelines": ["ckan_generator_handler"]
+}
