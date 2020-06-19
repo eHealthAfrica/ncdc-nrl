@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:zeebe="http://camunda.org/schema/zeebe/1.0" id="Definitions_039i1fy" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Zeebe Modeler" exporterVersion="0.9.1">
+  <bpmn:process id="Process_handleMessage" name="handleMessage" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1">
+      <bpmn:outgoing>Flow_1wngsd9</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:serviceTask id="ServiceTask_1awikpe" name="Notify Requester Accepted">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="rest-worker" retries="3" />
+        <zeebe:ioMapping>
+          <zeebe:input source="=sendMail_Url" target="url" />
+          <zeebe:input source="=Request_Mail.send_mail_requester_query_param" target="query_params" />
+        </zeebe:ioMapping>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1wngsd9</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_17m59xv</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="SequenceFlow_17m59xv" sourceRef="ServiceTask_1awikpe" targetRef="Task_0zutnm8" />
+    <bpmn:endEvent id="EndEvent_0ax7c9o" name="Done">
+      <bpmn:incoming>SequenceFlow_08bw8gx</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_1wngsd9" sourceRef="StartEvent_1" targetRef="ServiceTask_1awikpe" />
+    <bpmn:callActivity id="Task_0zutnm8" name="Approval&#10;Process">
+      <bpmn:extensionElements>
+        <zeebe:calledElement processId="Process_Approval_Parallel" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>SequenceFlow_17m59xv</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_08bw8gx</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:sequenceFlow id="SequenceFlow_08bw8gx" sourceRef="Task_0zutnm8" targetRef="EndEvent_0ax7c9o" />
+    <bpmn:textAnnotation id="TextAnnotation_0zdz4gk">
+      <bpmn:text>requestorEmail</bpmn:text>
+    </bpmn:textAnnotation>
+    <bpmn:association id="Association_16nr9d7" sourceRef="ServiceTask_1awikpe" targetRef="TextAnnotation_0zdz4gk" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_handleMessage">
+      <bpmndi:BPMNEdge id="SequenceFlow_08bw8gx_di" bpmnElement="SequenceFlow_08bw8gx">
+        <di:waypoint x="710" y="177" />
+        <di:waypoint x="822" y="177" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1wngsd9_di" bpmnElement="Flow_1wngsd9">
+        <di:waypoint x="188" y="177" />
+        <di:waypoint x="400" y="177" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_17m59xv_di" bpmnElement="SequenceFlow_17m59xv">
+        <di:waypoint x="500" y="178" />
+        <di:waypoint x="610" y="179" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="152" y="159" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ServiceTask_1awikpe_di" bpmnElement="ServiceTask_1awikpe">
+        <dc:Bounds x="400" y="137" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_0ax7c9o_di" bpmnElement="EndEvent_0ax7c9o">
+        <dc:Bounds x="822" y="159" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="827" y="202" width="27" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="CallActivity_0shyqlu_di" bpmnElement="Task_0zutnm8">
+        <dc:Bounds x="610" y="137" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="TextAnnotation_0zdz4gk_di" bpmnElement="TextAnnotation_0zdz4gk">
+        <dc:Bounds x="400" y="40" width="100" height="30" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Association_16nr9d7_di" bpmnElement="Association_16nr9d7">
+        <di:waypoint x="450" y="137" />
+        <di:waypoint x="450" y="70" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

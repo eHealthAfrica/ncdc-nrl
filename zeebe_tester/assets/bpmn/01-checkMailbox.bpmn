@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:zeebe="http://camunda.org/schema/zeebe/1.0" id="Definitions_15kx1vo" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Zeebe Modeler" exporterVersion="0.9.1">
+  <bpmn:process id="CheckMailBox" name="CheckMailBox" isExecutable="true">
+    <bpmn:subProcess id="Activity_1ym2r6f">
+      <bpmn:incoming>Flow_0s9341c</bpmn:incoming>
+      <bpmn:outgoing>Flow_085gaz9</bpmn:outgoing>
+      <bpmn:startEvent id="Event_0h3wjmh">
+        <bpmn:outgoing>Flow_0s79yxv</bpmn:outgoing>
+      </bpmn:startEvent>
+      <bpmn:receiveTask id="Activity_0klbzz8" name="cancelChecker" messageRef="Message_15j5pu3">
+        <bpmn:incoming>Flow_0s79yxv</bpmn:incoming>
+        <bpmn:outgoing>Flow_110poa1</bpmn:outgoing>
+      </bpmn:receiveTask>
+      <bpmn:endEvent id="Event_0kl4q65">
+        <bpmn:incoming>Flow_110poa1</bpmn:incoming>
+      </bpmn:endEvent>
+      <bpmn:subProcess id="Activity_00mvy4g" triggeredByEvent="true">
+        <bpmn:startEvent id="Event_0q9qbdv" name="every ( = checkFrequency ) run" isInterrupting="false">
+          <bpmn:outgoing>Flow_0h9d4on</bpmn:outgoing>
+          <bpmn:timerEventDefinition id="TimerEventDefinition_0l6374g">
+            <bpmn:timeCycle xsi:type="bpmn:tFormalExpression">= checkFrequency</bpmn:timeCycle>
+          </bpmn:timerEventDefinition>
+        </bpmn:startEvent>
+        <bpmn:serviceTask id="Activity_0a5eknz" name="checkMailbox" default="Flow_0qiyben">
+          <bpmn:extensionElements>
+            <zeebe:taskDefinition type="rest-worker" retries="3" />
+            <zeebe:ioMapping>
+              <zeebe:input source="=checkMail_Url" target="url" />
+              <zeebe:output source="=json" target="Request_Mails" />
+            </zeebe:ioMapping>
+          </bpmn:extensionElements>
+          <bpmn:incoming>Flow_0h9d4on</bpmn:incoming>
+          <bpmn:outgoing>Flow_0qiyben</bpmn:outgoing>
+        </bpmn:serviceTask>
+        <bpmn:exclusiveGateway id="Gateway_0i9fguy">
+          <bpmn:incoming>Flow_0qiyben</bpmn:incoming>
+          <bpmn:outgoing>Flow_0c7rgnh</bpmn:outgoing>
+        </bpmn:exclusiveGateway>
+        <bpmn:endEvent id="Event_0xms8tj">
+          <bpmn:incoming>Flow_0vtze1i</bpmn:incoming>
+        </bpmn:endEvent>
+        <bpmn:sequenceFlow id="Flow_0c7rgnh" sourceRef="Gateway_0i9fguy" targetRef="Activity_1d6418x" />
+        <bpmn:sequenceFlow id="Flow_0qiyben" sourceRef="Activity_0a5eknz" targetRef="Gateway_0i9fguy" />
+        <bpmn:sequenceFlow id="Flow_0h9d4on" sourceRef="Event_0q9qbdv" targetRef="Activity_0a5eknz" />
+        <bpmn:subProcess id="Activity_1d6418x" name="handleMessage" default="Flow_0vtze1i">
+          <bpmn:incoming>Flow_0c7rgnh</bpmn:incoming>
+          <bpmn:outgoing>Flow_0vtze1i</bpmn:outgoing>
+          <bpmn:multiInstanceLoopCharacteristics>
+            <bpmn:extensionElements>
+              <zeebe:loopCharacteristics inputCollection="=Request_Mails" inputElement="Request_Mail" outputCollection="=text" outputElement="=text" />
+            </bpmn:extensionElements>
+          </bpmn:multiInstanceLoopCharacteristics>
+          <bpmn:sequenceFlow id="Flow_1a427zu" sourceRef="Event_10wtzap" targetRef="Activity_0cpslm4" />
+          <bpmn:sequenceFlow id="Flow_0fqp2h5" sourceRef="Activity_0cpslm4" targetRef="Event_0yv6gfb" />
+          <bpmn:endEvent id="Event_0yv6gfb">
+            <bpmn:incoming>Flow_0fqp2h5</bpmn:incoming>
+          </bpmn:endEvent>
+          <bpmn:callActivity id="Activity_0cpslm4" name="handleMessage">
+            <bpmn:extensionElements>
+              <zeebe:calledElement processId="Process_handleMessage" />
+            </bpmn:extensionElements>
+            <bpmn:incoming>Flow_1a427zu</bpmn:incoming>
+            <bpmn:outgoing>Flow_0fqp2h5</bpmn:outgoing>
+          </bpmn:callActivity>
+          <bpmn:startEvent id="Event_10wtzap">
+            <bpmn:outgoing>Flow_1a427zu</bpmn:outgoing>
+          </bpmn:startEvent>
+        </bpmn:subProcess>
+        <bpmn:sequenceFlow id="Flow_0vtze1i" name="messages Handled" sourceRef="Activity_1d6418x" targetRef="Event_0xms8tj" />
+      </bpmn:subProcess>
+      <bpmn:sequenceFlow id="Flow_0s79yxv" sourceRef="Event_0h3wjmh" targetRef="Activity_0klbzz8" />
+      <bpmn:sequenceFlow id="Flow_110poa1" sourceRef="Activity_0klbzz8" targetRef="Event_0kl4q65" />
+    </bpmn:subProcess>
+    <bpmn:endEvent id="Event_07kansi" name="Cancelled">
+      <bpmn:incoming>Flow_085gaz9</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_0s9341c" sourceRef="Event_1lhzlom" targetRef="Activity_1ym2r6f" />
+    <bpmn:sequenceFlow id="Flow_085gaz9" sourceRef="Activity_1ym2r6f" targetRef="Event_07kansi" />
+    <bpmn:startEvent id="Event_1lhzlom" name="startChecker">
+      <bpmn:outgoing>Flow_0s9341c</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_1r0458x" messageRef="Message_0nbscyv" />
+    </bpmn:startEvent>
+    <bpmn:textAnnotation id="TextAnnotation_1rcem28">
+      <bpmn:text>emailServer
+emailUser
+emailPassword
+checkFrequency
+emailServer</bpmn:text>
+    </bpmn:textAnnotation>
+    <bpmn:association id="Association_05cz54q" sourceRef="Event_1lhzlom" targetRef="TextAnnotation_1rcem28" />
+  </bpmn:process>
+  <bpmn:message id="Message_0h0fs7p" name="startChecker" />
+  <bpmn:message id="Message_1duzpi3" name="cancel-Checker">
+    <bpmn:extensionElements>
+      <zeebe:subscription correlationKey="= worker_id" />
+    </bpmn:extensionElements>
+  </bpmn:message>
+  <bpmn:message id="Message_0nbscyv" name="start_Checker" />
+  <bpmn:message id="Message_15j5pu3" name="cancel-Checker">
+    <bpmn:extensionElements>
+      <zeebe:subscription correlationKey="= worker_id" />
+    </bpmn:extensionElements>
+  </bpmn:message>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="CheckMailBox">
+      <bpmndi:BPMNEdge id="Flow_085gaz9_di" bpmnElement="Flow_085gaz9">
+        <di:waypoint x="1200" y="210" />
+        <di:waypoint x="1372" y="210" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0s9341c_di" bpmnElement="Flow_0s9341c">
+        <di:waypoint x="198" y="190" />
+        <di:waypoint x="340" y="190" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Activity_1ym2r6f_di" bpmnElement="Activity_1ym2r6f" isExpanded="true">
+        <dc:Bounds x="340" y="110" width="860" height="860" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_110poa1_di" bpmnElement="Flow_110poa1">
+        <di:waypoint x="760" y="210" />
+        <di:waypoint x="1022" y="210" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0s79yxv_di" bpmnElement="Flow_0s79yxv">
+        <di:waypoint x="416" y="210" />
+        <di:waypoint x="660" y="210" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Event_0h3wjmh_di" bpmnElement="Event_0h3wjmh">
+        <dc:Bounds x="380" y="192" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0klbzz8_di" bpmnElement="Activity_0klbzz8">
+        <dc:Bounds x="660" y="170" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0kl4q65_di" bpmnElement="Event_0kl4q65">
+        <dc:Bounds x="1022" y="192" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_00mvy4g_di" bpmnElement="Activity_00mvy4g" isExpanded="true">
+        <dc:Bounds x="360" y="300" width="740" height="460" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_0vtze1i_di" bpmnElement="Flow_0vtze1i">
+        <di:waypoint x="910" y="640" />
+        <di:waypoint x="961" y="640" />
+        <di:waypoint x="961" y="400" />
+        <di:waypoint x="1012" y="400" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="951" y="517" width="51" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0h9d4on_di" bpmnElement="Flow_0h9d4on">
+        <di:waypoint x="436" y="400" />
+        <di:waypoint x="590" y="400" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0qiyben_di" bpmnElement="Flow_0qiyben">
+        <di:waypoint x="690" y="400" />
+        <di:waypoint x="795" y="400" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0c7rgnh_di" bpmnElement="Flow_0c7rgnh">
+        <di:waypoint x="820" y="425" />
+        <di:waypoint x="820" y="500" />
+        <di:waypoint x="480" y="500" />
+        <di:waypoint x="480" y="640" />
+        <di:waypoint x="560" y="640" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Event_0q9qbdv_di" bpmnElement="Event_0q9qbdv">
+        <dc:Bounds x="400" y="382" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="375" y="425" width="88" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0a5eknz_di" bpmnElement="Activity_0a5eknz">
+        <dc:Bounds x="590" y="360" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_0i9fguy_di" bpmnElement="Gateway_0i9fguy" isMarkerVisible="true">
+        <dc:Bounds x="795" y="375" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0xms8tj_di" bpmnElement="Event_0xms8tj">
+        <dc:Bounds x="1012" y="382" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1d6418x_di" bpmnElement="Activity_1d6418x" isExpanded="true">
+        <dc:Bounds x="560" y="540" width="350" height="200" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_0fqp2h5_di" bpmnElement="Flow_0fqp2h5">
+        <di:waypoint x="780" y="640" />
+        <di:waypoint x="832" y="640" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1a427zu_di" bpmnElement="Flow_1a427zu">
+        <di:waypoint x="636" y="640" />
+        <di:waypoint x="680" y="640" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Event_0yv6gfb_di" bpmnElement="Event_0yv6gfb">
+        <dc:Bounds x="832" y="622" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0cpslm4_di" bpmnElement="Activity_0cpslm4">
+        <dc:Bounds x="680" y="600" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_10wtzap_di" bpmnElement="Event_10wtzap">
+        <dc:Bounds x="600" y="622" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_07kansi_di" bpmnElement="Event_07kansi">
+        <dc:Bounds x="1372" y="192" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1366" y="235" width="50" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1lhzlom_di" bpmnElement="Event_1lhzlom">
+        <dc:Bounds x="162" y="172" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="149" y="215" width="64" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="TextAnnotation_1rcem28_di" bpmnElement="TextAnnotation_1rcem28">
+        <dc:Bounds x="200" y="90" width="100" height="82" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Association_05cz54q_di" bpmnElement="Association_05cz54q">
+        <di:waypoint x="194" y="178" />
+        <di:waypoint x="201" y="172" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
