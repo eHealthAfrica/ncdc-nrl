@@ -1,0 +1,5 @@
+{
+    "id": "ckan_ingress",
+    "name": "CKAN Ingress Job",
+    "pipelines": ["ckan_ingress"]
+}

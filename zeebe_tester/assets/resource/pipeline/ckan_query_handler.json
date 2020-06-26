@@ -1,0 +1,37 @@
+{
+    "id": "ckan_query_handler",
+    "zeebe_instance": "default",
+    "zeebe_subscription": "ckan-query-worker",
+    "stages": [
+        {
+            "name": "one",
+            "type": "restcall",
+            "id": "default",
+            "transition": {
+                "input_map": {
+                    "url": "$.source.url",
+                    "method": "$.source.method",
+                    "json_body": "$.source.request_data"
+                },
+                "output_map": {
+                    "text": "$.text",
+                    "failed": "$.request_failed",
+                    "status_code": "$.status_code",
+                    "json": "$.json"
+                }
+            }
+        },
+        {
+            "name": "two",
+            "type": "zeebecomplete",
+            "id": "default",
+            "transition": {
+                "input_map": {
+                    "status_code": "$.one.status_code",
+                    "json": "$.one.json",
+                    "text": "$.one.text"
+                }
+            }
+        }
+    ]
+}

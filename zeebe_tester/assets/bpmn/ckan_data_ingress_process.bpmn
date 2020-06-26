@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:zeebe="http://camunda.org/schema/zeebe/1.0" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_128wbtb" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Zeebe Modeler" exporterVersion="0.9.1">
+  <bpmn:process id="ckan_data_ingress_process" name="ckan_data_ingress_process" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1" name="trigger-ingress">
+      <bpmn:outgoing>Flow_1uvwkf9</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_1v664ud" messageRef="Message_14nwfr1" />
+    </bpmn:startEvent>
+    <bpmn:endEvent id="end-ingess-event-id" name="end-ingess-event">
+      <bpmn:incoming>Flow_09qxraq</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_1uvwkf9" sourceRef="StartEvent_1" targetRef="process-data-file-id" />
+    <bpmn:serviceTask id="process-data-file-id" name="process-data-file">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="process-data-file-worker" retries="4" />
+        <zeebe:taskHeaders>
+          <zeebe:header key="ckan_url" value="http://ckan:5000/" />
+          <zeebe:header key="ckan_api_key" value="d44f69dd-bb49-4fec-98d3-cf62d2d88a1f" />
+          <zeebe:header key="push_cloud_func_url" value="https://us-central1-cloudfunc-277513.cloudfunctions.net/push_to_ckan" />
+        </zeebe:taskHeaders>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1uvwkf9</bpmn:incoming>
+      <bpmn:outgoing>Flow_09qxraq</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_09qxraq" sourceRef="process-data-file-id" targetRef="end-ingess-event-id" />
+    <bpmn:textAnnotation id="TextAnnotation_1ob1e2y">
+      <bpmn:text>worker_id
+rq { method, cloud_url, file }
+</bpmn:text>
+    </bpmn:textAnnotation>
+    <bpmn:association id="Association_1ykh9gh" sourceRef="StartEvent_1" targetRef="TextAnnotation_1ob1e2y" />
+  </bpmn:process>
+  <bpmn:message id="Message_14nwfr1" name="trigger-ingress" />
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="ckan_data_ingress_process">
+      <bpmndi:BPMNEdge id="Flow_1uvwkf9_di" bpmnElement="Flow_1uvwkf9">
+        <di:waypoint x="215" y="187" />
+        <di:waypoint x="530" y="187" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_09qxraq_di" bpmnElement="Flow_09qxraq">
+        <di:waypoint x="630" y="187" />
+        <di:waypoint x="962" y="187" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Event_1waxk07_di" bpmnElement="StartEvent_1">
+        <dc:Bounds x="179" y="169" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="164" y="212" width="71" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="TextAnnotation_1ob1e2y_di" bpmnElement="TextAnnotation_1ob1e2y">
+        <dc:Bounds x="220" y="100" width="160" height="53" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_11tx2a2_di" bpmnElement="end-ingess-event-id">
+        <dc:Bounds x="962" y="169" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="938" y="212" width="85" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1u7o0hl_di" bpmnElement="process-data-file-id">
+        <dc:Bounds x="530" y="147" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Association_1ykh9gh_di" bpmnElement="Association_1ykh9gh">
+        <di:waypoint x="212" y="178" />
+        <di:waypoint x="253" y="153" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

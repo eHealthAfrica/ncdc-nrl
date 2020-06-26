@@ -1,0 +1,5 @@
+{
+    "id": "ckan_query_handler",
+    "name": "Default CKAN Job",
+    "pipelines": ["ckan_query_handler"]
+}
