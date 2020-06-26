@@ -1,0 +1,12 @@
+{
+	"listener_name": "start_Approve_Process",
+	"variables": {
+		"worker_id": "one",
+		"checkMail_Url": "https://us-central1-quick-bonfire-278608.cloudfunctions.net/checkMail?emailServer=imap.gmail.com&emailUser=ehaapprovalprocess@gmail.com&emailPassword=ehapproval@123",
+		"sendMail_Url": "https://us-central1-quick-bonfire-278608.cloudfunctions.net/sendMail",
+		"getApprovers_Url": "https://us-central1-quick-bonfire-278608.cloudfunctions.net/getApprovers?emailServer=imap.gmail.com&emailUser=ehaapprovalprocess@gmail.com&emailPassword=ehapproval@123&recipientAddress=shashank.h@axxonet.net",
+		"method": "get",
+		"checkFrequency": "R/PT120S",
+		"reminderFrequency": "PT2D"
+	}
+}
