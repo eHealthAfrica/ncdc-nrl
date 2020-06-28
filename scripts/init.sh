@@ -37,5 +37,7 @@ for volume in "${VOLUMES[@]}"; do
     echo_success "$volume volume is ready"
 done
 
-# docker-compose up -d --build
+docker-compose up --build -d
+docker-compose kill
+docker-compose down
 ./ckan/setup.sh

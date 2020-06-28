@@ -18,7 +18,7 @@
 # specific language governing permissions and limitations
 # under the License.
 
-version: '3'
+version: '3.8'
 
 networks:
   ncdc_nrl:
@@ -74,8 +74,8 @@ services:
       context: .
       dockerfile: postgresql/Dockerfile
       args:
-        - DS_RO_PASS=${CKAN_DATASTORE_READONLY_PASSWORD}
-        - POSTGRES_PASSWORD=${CKAN_PG_PASSWORD}
+        DS_RO_PASS: ${CKAN_DATASTORE_READONLY_PASSWORD}
+        POSTGRES_PASSWORD: ${CKAN_PG_PASSWORD}
     environment:
       - DS_RO_PASS=${CKAN_DATASTORE_READONLY_PASSWORD}
       - POSTGRES_PASSWORD=${CKAN_PG_PASSWORD}

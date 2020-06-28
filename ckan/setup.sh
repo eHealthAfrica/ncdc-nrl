@@ -20,14 +20,38 @@
 #
 set -Eeuo pipefail
 
+source .env
+
 docker-compose -f ckan/docker-compose.yml kill
 docker-compose -f ckan/docker-compose.yml down
 
-docker-compose -f ckan/docker-compose.yml up -d
+docker-compose -f ckan/docker-compose.yml up --build -d
 CKAN_ID=$(docker-compose -f ckan/docker-compose.yml ps -q ckan)
 
 retries=1
-until docker exec -it $CKAN_ID /usr/local/bin/ckan-paster --plugin=ckan sysadmin -c /etc/ckan/production.ini add admin | tee creds.txt && echo "done"
+until docker exec -it $CKAN_ID /usr/local/bin/ckan-paster \
+    --plugin=ckan \
+    user add $CKAN_SYSADMIN_NAME \
+    email=$CKAN_SYSADMIN_EMAIL \
+    name=$CKAN_SYSADMIN_NAME \
+    password=$CKAN_SYSADMIN_PASSWORD \
+    -c /etc/ckan/production.ini
+do
+    echo "waiting for ckan container to be ready... $retries"
+    sleep 5
+
+        ((retries++))
+        if [[ $retries -gt 30 ]]; then
+            echo "It was not possible to start CKAN"
+            exit 1
+        fi
+done
+
+retries=1
+until docker exec -it $CKAN_ID /usr/local/bin/ckan-paster \
+    --plugin=ckan \
+    sysadmin add $CKAN_SYSADMIN_NAME \
+    -c /etc/ckan/production.ini
 do
     echo "waiting for ckan container to be ready... $retries"
     sleep 5
