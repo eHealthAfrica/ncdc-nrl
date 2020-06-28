@@ -72,6 +72,8 @@ services:
       - 9013:9013
     networks:
       - ncdc_nrl
+    extra_hosts:
+      - ${NETWORK_DOMAIN}:192.168.43.19
 
   zeebe:
     container_name: zeebe_broker

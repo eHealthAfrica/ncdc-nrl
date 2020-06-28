@@ -1,0 +1,7 @@
+{
+    "id": "ckantransform",
+    "name": "Construct a json body for CKAN requests",
+    "entrypoint": "f",
+    "script": "function ckantransform(a,b,c){return {ckan_url:a,ckan_api_key:b,email_params:c}}function f(a,b,c){return ckantransform(a,b,c)};",
+    "arguments": ["a", "b", "c"]
+}

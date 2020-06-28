@@ -5,13 +5,28 @@
     "stages": [
         {
             "name": "one",
+            "type": "jscall",
+            "id": "ckantransform",
+            "transition": {
+                "input_map": {
+                    "a": "$.source.ckan_url",
+                    "b": "$.source.ckan_api_key",
+                    "c": "$.source.ckan_params"
+                },
+                "output_map": {
+                    "result": "$.result"
+                }
+            }
+        },
+        {
+            "name": "two",
             "type": "restcall",
             "id": "default",
             "transition": {
                 "input_map": {
-                    "url": "$.source.url",
-                    "method": "$.source.method",
-                    "json_body": "$.source.request_data"
+                    "url": "$.source.ckan_cloud_function_url",
+                    "method": "$.source.ckan_method",
+                    "json_body": "$.one.result"
                 },
                 "output_map": {
                     "text": "$.text",
@@ -22,14 +37,14 @@
             }
         },
         {
-            "name": "two",
+            "name": "three",
             "type": "zeebecomplete",
             "id": "default",
             "transition": {
                 "input_map": {
-                    "status_code": "$.one.status_code",
-                    "json": "$.one.json",
-                    "text": "$.one.text"
+                    "status_code": "$.two.status_code",
+                    "json": "$.two.json",
+                    "text": "$.two.text"
                 }
             }
         }

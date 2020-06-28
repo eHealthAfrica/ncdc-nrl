@@ -1,83 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:zeebe="http://camunda.org/schema/zeebe/1.0" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_0sy8tgx" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Zeebe Modeler" exporterVersion="0.9.1">
-  <bpmn:process id="ckan-data-processing" name="ckan-data-processing" isExecutable="true">
-    <bpmn:startEvent id="ckan-start-event" name="trigger-request-handler">
-      <bpmn:outgoing>Flow_0g2evee</bpmn:outgoing>
-      <bpmn:messageEventDefinition id="MessageEventDefinition_052axkj" messageRef="Message_1qixy4f" />
-    </bpmn:startEvent>
-    <bpmn:endEvent id="ckan-end-event" name="end-event">
-      <bpmn:incoming>Flow_1d506tf</bpmn:incoming>
+  <bpmn:process id="ckan_request_processor" name="CKAN Request Processor" isExecutable="true">
+    <bpmn:sequenceFlow id="Flow_0ty98ev" sourceRef="ckan-start-event" targetRef="Activity_1jzhvst" />
+    <bpmn:endEvent id="Event_0ujod9a">
+      <bpmn:incoming>Flow_0daxj7y</bpmn:incoming>
     </bpmn:endEvent>
-    <bpmn:sequenceFlow id="Flow_0g2evee" sourceRef="ckan-start-event" targetRef="Activity_0vzddss" />
-    <bpmn:subProcess id="Activity_0vzddss">
-      <bpmn:incoming>Flow_0g2evee</bpmn:incoming>
-      <bpmn:outgoing>Flow_1d506tf</bpmn:outgoing>
-      <bpmn:subProcess id="Activity_0b1xuu9" triggeredByEvent="true">
-        <bpmn:endEvent id="Event_0hczs4o" name="end-ckan-stage">
-          <bpmn:incoming>Flow_1va3t58</bpmn:incoming>
-        </bpmn:endEvent>
-        <bpmn:serviceTask id="ckan-query-generator-id" name="ckan-query-generator">
-          <bpmn:extensionElements>
-            <zeebe:taskDefinition type="request-to-query-worker" retries="3" />
-            <zeebe:ioMapping>
-              <zeebe:input source="sourceValue" target="targetValue" />
-            </zeebe:ioMapping>
-          </bpmn:extensionElements>
-          <bpmn:incoming>Flow_1jtaoik</bpmn:incoming>
-          <bpmn:outgoing>Flow_16y67uz</bpmn:outgoing>
-        </bpmn:serviceTask>
-        <bpmn:startEvent id="Event_179a5x3" name="start-ckan-stage">
-          <bpmn:outgoing>Flow_1jtaoik</bpmn:outgoing>
-        </bpmn:startEvent>
-        <bpmn:sequenceFlow id="Flow_16y67uz" sourceRef="ckan-query-generator-id" targetRef="ckan-operations-id" />
-        <bpmn:serviceTask id="ckan-operations-id" name="ckan-operations">
-          <bpmn:extensionElements>
-            <zeebe:taskDefinition type="rest-worker" retries="3" />
-          </bpmn:extensionElements>
-          <bpmn:incoming>Flow_16y67uz</bpmn:incoming>
-          <bpmn:outgoing>Flow_0nwzafw</bpmn:outgoing>
-        </bpmn:serviceTask>
-        <bpmn:sequenceFlow id="Flow_0nwzafw" sourceRef="ckan-operations-id" targetRef="s3-upload-id" />
-        <bpmn:serviceTask id="s3-upload-id" name="s3-upload">
-          <bpmn:extensionElements>
-            <zeebe:taskDefinition type="rest-worker" retries="3" />
-          </bpmn:extensionElements>
-          <bpmn:incoming>Flow_0nwzafw</bpmn:incoming>
-          <bpmn:outgoing>Flow_0t5ghl0</bpmn:outgoing>
-        </bpmn:serviceTask>
-        <bpmn:sequenceFlow id="Flow_0t5ghl0" sourceRef="s3-upload-id" targetRef="email-notification-id" />
-        <bpmn:sequenceFlow id="Flow_1va3t58" sourceRef="email-notification-id" targetRef="Event_0hczs4o" />
-        <bpmn:sequenceFlow id="Flow_1jtaoik" sourceRef="Event_179a5x3" targetRef="ckan-query-generator-id" />
-        <bpmn:serviceTask id="email-notification-id" name="email-notification">
-          <bpmn:extensionElements>
-            <zeebe:taskDefinition type="rest-worker" retries="3" />
-          </bpmn:extensionElements>
-          <bpmn:incoming>Flow_0t5ghl0</bpmn:incoming>
-          <bpmn:outgoing>Flow_1va3t58</bpmn:outgoing>
-        </bpmn:serviceTask>
-      </bpmn:subProcess>
-      <bpmn:receiveTask id="cancel-worker-id" name="cancel-worker" messageRef="Message_0ds8h4l">
-        <bpmn:incoming>Flow_0je2pie</bpmn:incoming>
-        <bpmn:outgoing>Flow_0o09kpq</bpmn:outgoing>
-      </bpmn:receiveTask>
-      <bpmn:endEvent id="Event_0v9ztq9">
-        <bpmn:incoming>Flow_0o09kpq</bpmn:incoming>
-      </bpmn:endEvent>
-      <bpmn:startEvent id="Event_0o3uhwt">
-        <bpmn:outgoing>Flow_0je2pie</bpmn:outgoing>
-      </bpmn:startEvent>
-      <bpmn:sequenceFlow id="Flow_0o09kpq" sourceRef="cancel-worker-id" targetRef="Event_0v9ztq9" />
-      <bpmn:sequenceFlow id="Flow_0je2pie" sourceRef="Event_0o3uhwt" targetRef="cancel-worker-id" />
-    </bpmn:subProcess>
-    <bpmn:sequenceFlow id="Flow_1d506tf" sourceRef="Activity_0vzddss" targetRef="ckan-end-event" />
+    <bpmn:serviceTask id="Activity_1jzhvst" name="CKAN Data Processor">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="ckan-query-worker" retries="3" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0ty98ev</bpmn:incoming>
+      <bpmn:outgoing>Flow_0daxj7y</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_0daxj7y" sourceRef="Activity_1jzhvst" targetRef="Event_0ujod9a" />
+    <bpmn:startEvent id="ckan-start-event" name="trigger_ckan_processor">
+      <bpmn:outgoing>Flow_0ty98ev</bpmn:outgoing>
+    </bpmn:startEvent>
     <bpmn:textAnnotation id="TextAnnotation_0scssbb">
-      <bpmn:text>worker_id
-request_data_link
-requester_email</bpmn:text>
+      <bpmn:text>ckan_params:dict</bpmn:text>
     </bpmn:textAnnotation>
-    <bpmn:association id="Association_157zf3o" sourceRef="ckan-start-event" targetRef="TextAnnotation_0scssbb" />
+    <bpmn:association id="Association_1tv9j1l" sourceRef="Activity_1jzhvst" targetRef="TextAnnotation_0scssbb" />
   </bpmn:process>
-  <bpmn:message id="Message_1qixy4f" name="trigger-request-handler">
+  <bpmn:message id="Message_1qixy4f" name="trigger_ckan_processor">
     <bpmn:extensionElements>
       <zeebe:subscription correlationKey="= worker_id" />
     </bpmn:extensionElements>
@@ -88,105 +32,33 @@ requester_email</bpmn:text>
     </bpmn:extensionElements>
   </bpmn:message>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
-    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="ckan-data-processing">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="ckan_request_processor">
       <bpmndi:BPMNShape id="TextAnnotation_0scssbb_di" bpmnElement="TextAnnotation_0scssbb">
-        <dc:Bounds x="250" y="80" width="110" height="68" />
+        <dc:Bounds x="300" y="80" width="150" height="30" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge id="Flow_0g2evee_di" bpmnElement="Flow_0g2evee">
-        <di:waypoint x="488" y="140" />
-        <di:waypoint x="530" y="140" />
-        <di:waypoint x="530" y="180" />
+      <bpmndi:BPMNEdge id="Flow_0ty98ev_di" bpmnElement="Flow_0ty98ev">
+        <di:waypoint x="218" y="280" />
+        <di:waypoint x="490" y="280" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1d506tf_di" bpmnElement="Flow_1d506tf">
-        <di:waypoint x="900" y="420" />
-        <di:waypoint x="941" y="420" />
-        <di:waypoint x="941" y="247" />
-        <di:waypoint x="982" y="247" />
+      <bpmndi:BPMNEdge id="Flow_0daxj7y_di" bpmnElement="Flow_0daxj7y">
+        <di:waypoint x="590" y="280" />
+        <di:waypoint x="922" y="280" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="Event_1u8xncw_di" bpmnElement="ckan-end-event">
-        <dc:Bounds x="982" y="229" width="36" height="36" />
+      <bpmndi:BPMNShape id="Event_0ujod9a_di" bpmnElement="Event_0ujod9a">
+        <dc:Bounds x="922" y="262" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0mosbbe_di" bpmnElement="Activity_1jzhvst">
+        <dc:Bounds x="490" y="240" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1lpmrtq_di" bpmnElement="ckan-start-event">
+        <dc:Bounds x="182" y="262" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="975" y="275" width="49" height="14" />
+          <dc:Bounds x="160" y="225" width="83" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_1n2wuu9_di" bpmnElement="ckan-start-event">
-        <dc:Bounds x="452" y="122" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="432" y="85" width="76" height="27" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0vzddss_di" bpmnElement="Activity_0vzddss" isExpanded="true">
-        <dc:Bounds x="160" y="180" width="740" height="480" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge id="Flow_0je2pie_di" bpmnElement="Flow_0je2pie">
-        <di:waypoint x="278" y="240" />
-        <di:waypoint x="460" y="240" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0o09kpq_di" bpmnElement="Flow_0o09kpq">
-        <di:waypoint x="560" y="240" />
-        <di:waypoint x="752" y="240" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="Event_0o3uhwt_di" bpmnElement="Event_0o3uhwt">
-        <dc:Bounds x="242" y="222" width="36" height="36" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_0v9ztq9_di" bpmnElement="Event_0v9ztq9">
-        <dc:Bounds x="752" y="222" width="36" height="36" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1oddn52_di" bpmnElement="cancel-worker-id">
-        <dc:Bounds x="460" y="200" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0tm8czb_di" bpmnElement="Activity_0b1xuu9" isExpanded="true">
-        <dc:Bounds x="190" y="340" width="670" height="270" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge id="Flow_16y67uz_di" bpmnElement="Flow_16y67uz">
-        <di:waypoint x="370" y="440" />
-        <di:waypoint x="370" y="500" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0nwzafw_di" bpmnElement="Flow_0nwzafw">
-        <di:waypoint x="420" y="540" />
-        <di:waypoint x="480" y="540" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0t5ghl0_di" bpmnElement="Flow_0t5ghl0">
-        <di:waypoint x="580" y="540" />
-        <di:waypoint x="650" y="540" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1va3t58_di" bpmnElement="Flow_1va3t58">
-        <di:waypoint x="700" y="500" />
-        <di:waypoint x="700" y="459" />
-        <di:waypoint x="780" y="459" />
-        <di:waypoint x="780" y="418" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1jtaoik_di" bpmnElement="Flow_1jtaoik">
-        <di:waypoint x="268" y="400" />
-        <di:waypoint x="320" y="400" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="Activity_15xtx8r_di" bpmnElement="ckan-operations-id">
-        <dc:Bounds x="320" y="500" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_16ct27q_di" bpmnElement="ckan-query-generator-id">
-        <dc:Bounds x="320" y="360" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_179a5x3_di" bpmnElement="Event_179a5x3">
-        <dc:Bounds x="232" y="382" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="212" y="425" width="79" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_16rjynz_di" bpmnElement="s3-upload-id">
-        <dc:Bounds x="480" y="500" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_0hczs4o_di" bpmnElement="Event_0hczs4o">
-        <dc:Bounds x="762" y="382" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="744" y="352" width="76" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1innmzw_di" bpmnElement="email-notification-id">
-        <dc:Bounds x="650" y="500" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge id="Association_157zf3o_di" bpmnElement="Association_157zf3o">
-        <di:waypoint x="452" y="137" />
-        <di:waypoint x="360" y="123" />
+      <bpmndi:BPMNEdge id="Association_1tv9j1l_di" bpmnElement="Association_1tv9j1l">
+        <di:waypoint x="508" y="240" />
+        <di:waypoint x="402" y="110" />
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

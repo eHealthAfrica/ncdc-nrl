@@ -1,0 +1,16 @@
+{
+	"listener_name": "trigger-ckan-processor",
+	"variables": {
+		"worker_id": "ckan-processor-worker",
+        "ckan_url": "http://192.168.43.19:5000",
+        "ckan_api_key": "d44f69dd-bb49-4fec-98d3-cf62d2d88a1f",
+        "url": "http://192.168.43.19:8003",
+        "method": "post",
+        "request_data": {
+            "file": "https://drive.google.com/file/d/1ZDQ5MOxnzUztClbT2ZWbfwSmWHE8Gyv8/view?usp=sharing",
+            "requestor_email": "lord-mallam.nugwan@gmail.com"
+        },
+        "send_email_url": "https://us-central1-quick-bonfire-278608.cloudfunctions.net/sendMail",
+        "email_params": "emailServer=imap.gmail.com&emailUser=lordy002000@gmail.com&emailPassword=Worm028Rein324@&recipientAddress=lord-mallam.nugwan@ehealthnigeria.org&messageSubject=NCDC Data Download Link&messageBody="
+	}
+}
