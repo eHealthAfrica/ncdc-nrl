@@ -91,6 +91,7 @@
         <zeebe:taskDefinition type="rest-worker" retries="3" />
         <zeebe:ioMapping>
           <zeebe:input source="=getApprovers_Url" target="url" />
+          <zeebe:input source="=Request_Mail" target="query_params" />
           <zeebe:output source="=json" target="approvers" />
         </zeebe:ioMapping>
       </bpmn:extensionElements>
@@ -188,6 +189,12 @@
   <bpmn:message id="Message_1049v4u" name="Message_01mv22f" />
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_Approval_Parallel">
+      <bpmndi:BPMNEdge id="Flow_035arpf_di" bpmnElement="Flow_035arpf">
+        <di:waypoint x="1700" y="181" />
+        <di:waypoint x="1750" y="181" />
+        <di:waypoint x="1750" y="90" />
+        <di:waypoint x="1800" y="90" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1h998wo_di" bpmnElement="Flow_1h998wo">
         <di:waypoint x="188" y="250" />
         <di:waypoint x="260" y="250" />
@@ -226,24 +233,6 @@
         <di:waypoint x="360" y="250" />
         <di:waypoint x="430" y="250" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_035arpf_di" bpmnElement="Flow_035arpf">
-        <di:waypoint x="1700" y="181" />
-        <di:waypoint x="1750" y="181" />
-        <di:waypoint x="1750" y="90" />
-        <di:waypoint x="1800" y="90" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="Activity_10jmm9u_di" bpmnElement="Activity_08nt74e">
-        <dc:Bounds x="1800" y="50" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0fyp4a8_di" bpmnElement="Activity_1gnl35k">
-        <dc:Bounds x="1600" y="141" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_1fub8n4_di" bpmnElement="Event_1fub8n4">
-        <dc:Bounds x="1832" y="232" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="1840" y="275" width="20" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="SubProcess_18z1iwt_di" bpmnElement="SubProcess_18z1iwt" isExpanded="true">
         <dc:Bounds x="430" y="160" width="940" height="470" />
       </bpmndi:BPMNShape>
@@ -332,8 +321,17 @@
       <bpmndi:BPMNShape id="ServiceTask_0yurgzh_di" bpmnElement="Task_0v45zwe">
         <dc:Bounds x="260" y="210" width="100" height="80" />
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1fub8n4_di" bpmnElement="Event_1fub8n4">
+        <dc:Bounds x="1832" y="232" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1840" y="275" width="20" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_1jmhn45_di" bpmnElement="Activity_0ub1g0o">
         <dc:Bounds x="1450" y="355" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_10jmm9u_di" bpmnElement="Activity_08nt74e">
+        <dc:Bounds x="1800" y="50" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_11hcrnv_di" bpmnElement="Gateway_0qs8rtx" isMarkerVisible="true">
         <dc:Bounds x="1475" y="225" width="50" height="50" />
@@ -349,6 +347,9 @@
         <bpmndi:BPMNLabel>
           <dc:Bounds x="159" y="275" width="25" height="14" />
         </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0fyp4a8_di" bpmnElement="Activity_1gnl35k">
+        <dc:Bounds x="1600" y="141" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="TextAnnotation_1kmvfn8_di" bpmnElement="TextAnnotation_1kmvfn8">
         <dc:Bounds x="1370" y="80" width="100" height="41" />
