@@ -4,3 +4,4 @@ set -Eeuo pipefail
 
 docker-compose kill
 docker-compose down
+./ckan/stop.sh

@@ -1,7 +1,7 @@
 {
-    "id": "ckan_generator_handler",
+    "id": "ckan_ingress",
     "zeebe_instance": "default",
-    "zeebe_subscription": "request-to-query-worker",
+    "zeebe_subscription": "process-data-file-worker",
     "stages": [
         {
             "name": "one",
@@ -9,9 +9,13 @@
             "id": "default",
             "transition": {
                 "input_map": {
-                    "url": "$.source.url",
-                    "method": "$.source.method",
-                    "json_body": "$.source.request_data"
+                    "url": "$.source.rq.cloud_url",
+                    "method": "$.source.rq.method",
+                    "json_body": "$.source.rq",
+                    "headers": "$.source.headers",
+                    "token": "$.source.token",
+                    "basic_auth": "$.source.basic_auth",
+                    "query_params": "$.source.query_params"
                 },
                 "output_map": {
                     "text": "$.text",
@@ -23,7 +27,7 @@
             }
         },
         {
-            "name": "two",
+            "name": "three",
             "type": "zeebecomplete",
             "id": "default",
             "transition": {

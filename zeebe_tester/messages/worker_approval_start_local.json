@@ -1,0 +1,16 @@
+{
+	"listener_name": "start_Approve_Process",
+	"variables": {
+		"worker_id": "one",
+		"checkMail_Url": "http://ncdc-nrl.local:8002/?emailServer=imap.gmail.com&emailPassword=Password1@&emailUser=mailer.ncdc.data@gmail.com",
+		"sendMail_Url": "http://ncdc-nrl.local:8005/",
+		"getApprovers_Url": "http://ncdc-nrl.local:8004/?emailServer=imap.gmail.com&emailPassword=Password1@&emailUser=mailer.ncdc.data@gmail.com",
+		"method": "get",
+		"checkFrequency": "R/PT120S",
+        "reminderFrequency": "P2D",
+        "ckan_url": "http://ncdc-nrl.local:5000",
+        "ckan_api_key": "d44f69dd-bb49-4fec-98d3-cf62d2d88a1f",
+        "ckan_cloud_function_url": "http://ncdc-nrl.local:8003/",
+        "ckan_method": "post"
+	}
+}

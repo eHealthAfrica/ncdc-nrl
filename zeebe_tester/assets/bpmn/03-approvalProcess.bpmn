@@ -117,13 +117,13 @@
         <zeebe:taskDefinition type="rest-worker" retries="3" />
         <zeebe:ioMapping>
           <zeebe:input source="=sendMail_Url" target="url" />
-          <zeebe:input source="=Request_Mail.send_mail_requester_approved_query_param" target="query_params" />
+          <zeebe:input source="=json.approval_email_params" target="query_params" />
         </zeebe:ioMapping>
       </bpmn:extensionElements>
-      <bpmn:incoming>Flow_08vmlct</bpmn:incoming>
+      <bpmn:incoming>Flow_035arpf</bpmn:incoming>
       <bpmn:outgoing>Flow_1e0yyg4</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:sequenceFlow id="Flow_08vmlct" name="yes" sourceRef="Gateway_0qs8rtx" targetRef="Activity_08nt74e">
+    <bpmn:sequenceFlow id="Flow_08vmlct" name="yes" sourceRef="Gateway_0qs8rtx" targetRef="Activity_1gnl35k">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">= every x in decisionValues satisfies x="true"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:exclusiveGateway id="Gateway_0qs8rtx" default="Flow_0jq7xvo">
@@ -141,6 +141,17 @@
     <bpmn:startEvent id="Event_0ljd0xr" name="Start">
       <bpmn:outgoing>Flow_1h998wo</bpmn:outgoing>
     </bpmn:startEvent>
+    <bpmn:callActivity id="Activity_1gnl35k" name="Start CKAN Process">
+      <bpmn:extensionElements>
+        <zeebe:calledElement processId="ckan_request_processor" />
+        <zeebe:ioMapping>
+          <zeebe:input source="=Request_Mail.ckan_params" target="ckan_params" />
+        </zeebe:ioMapping>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_08vmlct</bpmn:incoming>
+      <bpmn:outgoing>Flow_035arpf</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:sequenceFlow id="Flow_035arpf" sourceRef="Activity_1gnl35k" targetRef="Activity_08nt74e" />
     <bpmn:textAnnotation id="TextAnnotation_1kmvfn8">
       <bpmn:text>For each approver</bpmn:text>
     </bpmn:textAnnotation>
@@ -200,20 +211,39 @@
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_08vmlct_di" bpmnElement="Flow_08vmlct">
-        <di:waypoint x="1525" y="250" />
-        <di:waypoint x="1610" y="250" />
+        <di:waypoint x="1500" y="225" />
+        <di:waypoint x="1500" y="181" />
+        <di:waypoint x="1600" y="181" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1528" y="232" width="17" height="14" />
+          <dc:Bounds x="1505" y="163" width="18" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1e0yyg4_di" bpmnElement="Flow_1e0yyg4">
-        <di:waypoint x="1710" y="250" />
-        <di:waypoint x="1772" y="250" />
+        <di:waypoint x="1850" y="130" />
+        <di:waypoint x="1850" y="232" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_189it62_di" bpmnElement="SequenceFlow_189it62">
         <di:waypoint x="360" y="250" />
         <di:waypoint x="430" y="250" />
       </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_035arpf_di" bpmnElement="Flow_035arpf">
+        <di:waypoint x="1700" y="181" />
+        <di:waypoint x="1750" y="181" />
+        <di:waypoint x="1750" y="90" />
+        <di:waypoint x="1800" y="90" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Activity_10jmm9u_di" bpmnElement="Activity_08nt74e">
+        <dc:Bounds x="1800" y="50" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0fyp4a8_di" bpmnElement="Activity_1gnl35k">
+        <dc:Bounds x="1600" y="141" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1fub8n4_di" bpmnElement="Event_1fub8n4">
+        <dc:Bounds x="1832" y="232" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1840" y="275" width="20" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="SubProcess_18z1iwt_di" bpmnElement="SubProcess_18z1iwt" isExpanded="true">
         <dc:Bounds x="430" y="160" width="940" height="470" />
       </bpmndi:BPMNShape>
@@ -302,17 +332,8 @@
       <bpmndi:BPMNShape id="ServiceTask_0yurgzh_di" bpmnElement="Task_0v45zwe">
         <dc:Bounds x="260" y="210" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_1fub8n4_di" bpmnElement="Event_1fub8n4">
-        <dc:Bounds x="1772" y="232" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="1780" y="275" width="20" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_1jmhn45_di" bpmnElement="Activity_0ub1g0o">
         <dc:Bounds x="1450" y="355" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_10jmm9u_di" bpmnElement="Activity_08nt74e">
-        <dc:Bounds x="1610" y="210" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_11hcrnv_di" bpmnElement="Gateway_0qs8rtx" isMarkerVisible="true">
         <dc:Bounds x="1475" y="225" width="50" height="50" />

@@ -1,0 +1,21 @@
+User "admin" not found
+Create new user: admin? [y/n]y
+Email address: a@a.com
+Password: 
+Confirm password: 
+Creating user: 'admin'
+{'about': None,
+ 'activity_streams_email_notifications': False,
+ 'apikey': u'd44f69dd-bb49-4fec-98d3-cf62d2d88a1f',
+ 'created': '2020-06-23T12:14:47.202419',
+ 'display_name': u'admin',
+ 'email': u'a@a.com',
+ 'email_hash': 'd10ca8d11301c2f4993ac2279ce4b930',
+ 'fullname': None,
+ 'id': u'514e71f7-d342-4a9e-8780-f78777a56596',
+ 'name': u'admin',
+ 'number_created_packages': 0L,
+ 'number_of_edits': 1L,
+ 'state': u'active',
+ 'sysadmin': False}
+Added admin as sysadmin
