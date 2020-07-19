@@ -46,7 +46,7 @@ services:
       - ncdc_nrl
 
   consumer:
-    image: aether-stream-consumer
+    image: ehealthafrica/aether-stream-consumer:0.3.1
     environment:
       # consumer settings
       - CONSUMER_NAME='STREAM'
@@ -73,7 +73,7 @@ services:
     networks:
       - ncdc_nrl
     extra_hosts:
-      - ${NETWORK_DOMAIN}:192.168.43.19
+      - ${NETWORK_DOMAIN}:192.168.1.192
 
   zeebe:
     container_name: zeebe_broker
