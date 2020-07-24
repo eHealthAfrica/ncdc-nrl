@@ -38,7 +38,7 @@ If this is the first time you are running this app, use the following commands t
 ./scripts/init.sh && ./scripts/start.sh
 ```
 
-Subsequently, use the follow to startup
+Subsequently, use the following to startup
 ```bash
 ./scripts/start.sh
 ```
