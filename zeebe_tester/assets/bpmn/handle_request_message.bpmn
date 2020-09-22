@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:zeebe="http://camunda.org/schema/zeebe/1.0" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_1ubkabv" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Zeebe Modeler" exporterVersion="0.9.1">
+  <bpmn:process id="process_handle_request_message" name="handle_request_messsage" isExecutable="true">
+    <bpmn:startEvent id="Event_01vw95w">
+      <bpmn:outgoing>Flow_1gn285k</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:serviceTask id="Activity_01iicl2" name="Notify Requester Accepted">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="rest-worker" retries="3" />
+        <zeebe:ioMapping>
+          <zeebe:input source="=sendMail_Url" target="url" />
+          <zeebe:input source="=request_review_mail.send_mail_requester_review_query_param" target="query_params" />
+        </zeebe:ioMapping>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1gn285k</bpmn:incoming>
+      <bpmn:outgoing>Flow_1lp09no</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="Event_150qwa1" name="Done">
+      <bpmn:incoming>Flow_0u9teoi</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_1gn285k" sourceRef="Event_01vw95w" targetRef="Activity_01iicl2" />
+    <bpmn:sequenceFlow id="Flow_1lp09no" sourceRef="Activity_01iicl2" targetRef="Activity_0jikbxd" />
+    <bpmn:serviceTask id="Activity_0jikbxd" name="Get Required Reviewers">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="rest-worker" retries="3" />
+        <zeebe:ioMapping>
+          <zeebe:input source="=get_reviewers_url" target="url" />
+          <zeebe:input source="=request_review_mail" target="query_params" />
+          <zeebe:output source="=json" target="reviewers" />
+        </zeebe:ioMapping>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1lp09no</bpmn:incoming>
+      <bpmn:outgoing>Flow_0hws7ux</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:subProcess id="Activity_1bo2ez1" name="">
+      <bpmn:incoming>Flow_0hws7ux</bpmn:incoming>
+      <bpmn:outgoing>Flow_0u9teoi</bpmn:outgoing>
+      <bpmn:multiInstanceLoopCharacteristics>
+        <bpmn:extensionElements>
+          <zeebe:loopCharacteristics inputCollection="=reviewers" inputElement="reviewer" outputCollection="=text" outputElement="=text" />
+        </bpmn:extensionElements>
+      </bpmn:multiInstanceLoopCharacteristics>
+      <bpmn:startEvent id="Event_09ax9uy">
+        <bpmn:outgoing>Flow_0avyx03</bpmn:outgoing>
+      </bpmn:startEvent>
+      <bpmn:serviceTask id="Activity_0vd0ifg" name="Notify Reviewer New Request">
+        <bpmn:extensionElements>
+          <zeebe:taskDefinition type="rest-worker" retries="3" />
+          <zeebe:ioMapping>
+            <zeebe:input source="=sendMail_Url" target="url" />
+            <zeebe:input source="=reviewer.send_mail_reviewer_query_param" target="query_params" />
+          </zeebe:ioMapping>
+        </bpmn:extensionElements>
+        <bpmn:incoming>Flow_0avyx03</bpmn:incoming>
+        <bpmn:outgoing>Flow_0d7v5ab</bpmn:outgoing>
+      </bpmn:serviceTask>
+      <bpmn:endEvent id="Event_07dyw0s">
+        <bpmn:incoming>Flow_0d7v5ab</bpmn:incoming>
+      </bpmn:endEvent>
+      <bpmn:sequenceFlow id="Flow_0d7v5ab" sourceRef="Activity_0vd0ifg" targetRef="Event_07dyw0s" />
+      <bpmn:sequenceFlow id="Flow_0avyx03" sourceRef="Event_09ax9uy" targetRef="Activity_0vd0ifg" />
+    </bpmn:subProcess>
+    <bpmn:sequenceFlow id="Flow_0hws7ux" sourceRef="Activity_0jikbxd" targetRef="Activity_1bo2ez1" />
+    <bpmn:sequenceFlow id="Flow_0u9teoi" sourceRef="Activity_1bo2ez1" targetRef="Event_150qwa1" />
+    <bpmn:textAnnotation id="TextAnnotation_1ya0tq4">
+      <bpmn:text>requestorEmail</bpmn:text>
+    </bpmn:textAnnotation>
+    <bpmn:association id="Association_16xc5xr" sourceRef="Activity_01iicl2" targetRef="TextAnnotation_1ya0tq4" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="process_handle_request_message">
+      <bpmndi:BPMNShape id="TextAnnotation_1ya0tq4_di" bpmnElement="TextAnnotation_1ya0tq4">
+        <dc:Bounds x="350" y="80" width="100" height="30" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1gn285k_di" bpmnElement="Flow_1gn285k">
+        <di:waypoint x="188" y="200" />
+        <di:waypoint x="340" y="200" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1lp09no_di" bpmnElement="Flow_1lp09no">
+        <di:waypoint x="440" y="201" />
+        <di:waypoint x="580" y="201" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0hws7ux_di" bpmnElement="Flow_0hws7ux">
+        <di:waypoint x="630" y="241" />
+        <di:waypoint x="630" y="271" />
+        <di:waypoint x="570" y="271" />
+        <di:waypoint x="570" y="300" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0u9teoi_di" bpmnElement="Flow_0u9teoi">
+        <di:waypoint x="765" y="300" />
+        <di:waypoint x="765" y="259" />
+        <di:waypoint x="960" y="259" />
+        <di:waypoint x="960" y="218" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Event_01vw95w_di" bpmnElement="Event_01vw95w">
+        <dc:Bounds x="152" y="182" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_01iicl2_di" bpmnElement="Activity_01iicl2">
+        <dc:Bounds x="340" y="160" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0jikbxd_di" bpmnElement="Activity_0jikbxd">
+        <dc:Bounds x="580" y="161" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_150qwa1_di" bpmnElement="Event_150qwa1">
+        <dc:Bounds x="942" y="182" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="946" y="158" width="27" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1bo2ez1_di" bpmnElement="Activity_1bo2ez1" isExpanded="true">
+        <dc:Bounds x="550" y="300" width="430" height="290" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_0d7v5ab_di" bpmnElement="Flow_0d7v5ab">
+        <di:waypoint x="820" y="450" />
+        <di:waypoint x="856" y="450" />
+        <di:waypoint x="856" y="370" />
+        <di:waypoint x="892" y="370" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0avyx03_di" bpmnElement="Flow_0avyx03">
+        <di:waypoint x="628" y="370" />
+        <di:waypoint x="674" y="370" />
+        <di:waypoint x="674" y="450" />
+        <di:waypoint x="720" y="450" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Event_09ax9uy_di" bpmnElement="Event_09ax9uy">
+        <dc:Bounds x="592" y="352" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0vd0ifg_di" bpmnElement="Activity_0vd0ifg">
+        <dc:Bounds x="720" y="410" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_07dyw0s_di" bpmnElement="Event_07dyw0s">
+        <dc:Bounds x="892" y="352" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Association_16xc5xr_di" bpmnElement="Association_16xc5xr">
+        <di:waypoint x="390" y="160" />
+        <di:waypoint x="400" y="110" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
